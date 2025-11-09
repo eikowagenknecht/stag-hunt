@@ -1,5 +1,7 @@
 # Stag Hunt Game Simulation
 
+> **Note**: This was quickly hacked together with Claude in about an hour for my local EA group. There might be bugs.
+
 An interactive web-based simulation of the Stag Hunt game with uncertainty and starvation mechanics, designed for EA (Effective Altruist) group presentations.
 
 ## Features
