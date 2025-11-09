@@ -27,9 +27,22 @@ Chart.register(
   BarElement
 );
 
+function formatStrategyName(strategy: string): string {
+  const strategyNames: Record<string, string> = {
+    'always-stag': 'Always Stag',
+    'always-hare': 'Always Hare',
+    'tit-for-tat': 'Tit-for-Tat',
+    'random': 'Random',
+    'cautious': 'Cautious',
+  };
+  return strategyNames[strategy] || strategy;
+}
+
 export function createFoodOverTimeChart(
   canvasId: string,
-  result: SimulationResult
+  result: SimulationResult,
+  player1Strategy?: string,
+  player2Strategy?: string
 ): Chart | null {
   const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
   if (!canvas) return null;
@@ -40,6 +53,9 @@ export function createFoodOverTimeChart(
   const labels = result.finalState.history.map((r) => `Round ${r.round}`);
   const player1Data = result.finalState.history.map((r) => r.player1CurrentFood);
   const player2Data = result.finalState.history.map((r) => r.player2CurrentFood);
+
+  const p1Label = player1Strategy ? `P1: ${formatStrategyName(player1Strategy)}` : 'Player 1';
+  const p2Label = player2Strategy ? `P2: ${formatStrategyName(player2Strategy)}` : 'Player 2';
 
   // Destroy existing chart if it exists
   const existingChart = Chart.getChart(canvas);
@@ -53,14 +69,14 @@ export function createFoodOverTimeChart(
       labels,
       datasets: [
         {
-          label: 'Player 1',
+          label: p1Label,
           data: player1Data,
           borderColor: 'rgb(59, 130, 246)',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.1,
         },
         {
-          label: 'Player 2',
+          label: p2Label,
           data: player2Data,
           borderColor: 'rgb(239, 68, 68)',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -102,7 +118,9 @@ export function createFoodOverTimeChart(
 
 export function createChoiceDistributionChart(
   canvasId: string,
-  result: SimulationResult
+  result: SimulationResult,
+  player1Strategy?: string,
+  player2Strategy?: string
 ): Chart | null {
   const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
   if (!canvas) return null;
@@ -115,6 +133,9 @@ export function createChoiceDistributionChart(
   const player2Stag = result.finalState.history.filter((r) => r.player2Choice === 'stag').length;
   const player2Hare = result.finalState.history.filter((r) => r.player2Choice === 'hare').length;
 
+  const p1Label = player1Strategy ? `P1: ${formatStrategyName(player1Strategy)}` : 'Player 1';
+  const p2Label = player2Strategy ? `P2: ${formatStrategyName(player2Strategy)}` : 'Player 2';
+
   // Destroy existing chart if it exists
   const existingChart = Chart.getChart(canvas);
   if (existingChart) {
@@ -124,7 +145,7 @@ export function createChoiceDistributionChart(
   return new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Player 1', 'Player 2'],
+      labels: [p1Label, p2Label],
       datasets: [
         {
           label: 'Stag',

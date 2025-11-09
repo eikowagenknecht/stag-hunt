@@ -10,6 +10,7 @@ export type Strategy =
 export interface GameConfig {
   startingFood: number;
   stagProbability: number; // 0-1
+  stagPayoff: number;
   maxRounds: number;
   dailyConsumption: number;
 }
@@ -64,5 +65,6 @@ export interface GamePreset {
   description: string;
   startingFood: number;
   stagProbability: number; // 0-1
+  stagPayoff: number;
   dailyConsumption: number;
 }

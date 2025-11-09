@@ -16,6 +16,10 @@ const startingFoodValue = document.getElementById('starting-food-value') as HTML
 
 const stagProbSlider = document.getElementById('stag-prob') as HTMLInputElement;
 const stagProbValue = document.getElementById('stag-prob-value') as HTMLSpanElement;
+const stagEvValue = document.getElementById('stag-ev') as HTMLSpanElement;
+
+const stagPayoffSlider = document.getElementById('stag-payoff') as HTMLInputElement;
+const stagPayoffValue = document.getElementById('stag-payoff-value') as HTMLSpanElement;
 
 const maxRoundsSlider = document.getElementById('max-rounds') as HTMLInputElement;
 const maxRoundsValue = document.getElementById('max-rounds-value') as HTMLSpanElement;
@@ -32,12 +36,21 @@ const generateHeatmapButton = document.getElementById('generate-heatmap') as HTM
 
 const resultsSection = document.getElementById('results-section') as HTMLDivElement;
 const statsTable = document.getElementById('stats-table') as HTMLTableElement;
+const historyBody = document.getElementById('history-body') as HTMLTableSectionElement;
 const breakevenResult = document.getElementById('breakeven-result') as HTMLDivElement;
 
 // Update slider value displays
 function updateSliderValues() {
   startingFoodValue.textContent = startingFoodSlider.value;
   stagProbValue.textContent = stagProbSlider.value + '%';
+  stagPayoffValue.textContent = stagPayoffSlider.value;
+
+  // Calculate and display expected value for cooperative stag hunting
+  const stagProb = parseInt(stagProbSlider.value) / 100;
+  const stagPayoff = parseFloat(stagPayoffSlider.value);
+  const expectedValue = (stagProb * stagPayoff).toFixed(1);
+  stagEvValue.textContent = `Expected food gain: ${expectedValue}`;
+
   maxRoundsValue.textContent = maxRoundsSlider.value;
   dailyConsValue.textContent = dailyConsSlider.value;
 }
@@ -48,6 +61,10 @@ startingFoodSlider.addEventListener('input', () => {
   updateSliderValues();
 });
 stagProbSlider.addEventListener('input', () => {
+  presetSelect.value = 'custom';
+  updateSliderValues();
+});
+stagPayoffSlider.addEventListener('input', () => {
   presetSelect.value = 'custom';
   updateSliderValues();
 });
@@ -64,6 +81,7 @@ function applyPreset(presetId: string) {
 
   startingFoodSlider.value = preset.startingFood.toString();
   stagProbSlider.value = (preset.stagProbability * 100).toString();
+  stagPayoffSlider.value = preset.stagPayoff.toString();
   dailyConsSlider.value = preset.dailyConsumption.toString();
 
   // Update description
@@ -82,6 +100,7 @@ function getCurrentConfig(): GameConfig {
   return {
     startingFood: parseInt(startingFoodSlider.value),
     stagProbability: parseInt(stagProbSlider.value) / 100,
+    stagPayoff: parseFloat(stagPayoffSlider.value),
     maxRounds: parseInt(maxRoundsSlider.value),
     dailyConsumption: parseFloat(dailyConsSlider.value),
   };
@@ -100,15 +119,15 @@ runSimButton.addEventListener('click', () => {
   resultsSection.style.display = 'block';
 
   // Create charts
-  createFoodOverTimeChart('food-chart', result);
-  createChoiceDistributionChart('choice-chart', result);
+  createFoodOverTimeChart('food-chart', result, player1Strategy, player2Strategy);
+  createChoiceDistributionChart('choice-chart', result, player1Strategy, player2Strategy);
 
   // Update statistics table
   statsTable.innerHTML = `
     <tr>
-      <th>Metric</th>
-      <th>Player 1</th>
-      <th>Player 2</th>
+      <th></th>
+      <th>P1</th>
+      <th>P2</th>
     </tr>
     <tr>
       <td>Final Food</td>
@@ -116,38 +135,51 @@ runSimButton.addEventListener('click', () => {
       <td>${stats.player2FinalFood}</td>
     </tr>
     <tr>
-      <td>Cooperation Rate</td>
+      <td>Cooperation</td>
       <td>${stats.player1CooperationRate}</td>
       <td>${stats.player2CooperationRate}</td>
-    </tr>
-    <tr>
-      <td colspan="3"><strong>Game Statistics</strong></td>
-    </tr>
-    <tr>
-      <td>Total Rounds</td>
-      <td colspan="2">${stats.totalRounds}</td>
     </tr>
     <tr>
       <td>Winner</td>
       <td colspan="2">${stats.winner === 1 ? 'Player 1' : stats.winner === 2 ? 'Player 2' : 'Tie'}</td>
     </tr>
     <tr>
+      <td>Rounds</td>
+      <td colspan="2">${stats.totalRounds}</td>
+    </tr>
+    <tr>
       <td>Stag Attempts</td>
-      <td colspan="2">${stats.stagAttempts}</td>
-    </tr>
-    <tr>
-      <td>Stag Successes</td>
-      <td colspan="2">${stats.stagSuccesses}</td>
-    </tr>
-    <tr>
-      <td>Stag Failures</td>
-      <td colspan="2">${stats.stagFailures}</td>
-    </tr>
-    <tr>
-      <td>Actual Success Rate</td>
-      <td colspan="2">${stats.stagSuccessRate}</td>
+      <td colspan="2">${stats.stagAttempts} (${stats.stagSuccesses} success, ${stats.stagFailures} fail) - ${stats.stagSuccessRate}</td>
     </tr>
   `;
+
+  // Populate round-by-round history table
+  historyBody.innerHTML = result.finalState.history
+    .map((round) => {
+      const p1ChoiceDisplay = round.player1Choice === 'stag' ? 'Stag' : 'Hare';
+      const p2ChoiceDisplay = round.player2Choice === 'stag' ? 'Stag' : 'Hare';
+      const stagAppearedDisplay = round.stagAppeared ? 'Yes' : 'No';
+      const p1FoodChange = round.player1FoodChange >= 0 ? `+${round.player1FoodChange.toFixed(1)}` : round.player1FoodChange.toFixed(1);
+      const p2FoodChange = round.player2FoodChange >= 0 ? `+${round.player2FoodChange.toFixed(1)}` : round.player2FoodChange.toFixed(1);
+
+      // Add color coding based on food change
+      const p1ChangeClass = round.player1FoodChange > 0 ? 'food-gain' : round.player1FoodChange < 0 ? 'food-loss' : '';
+      const p2ChangeClass = round.player2FoodChange > 0 ? 'food-gain' : round.player2FoodChange < 0 ? 'food-loss' : '';
+
+      return `
+        <tr>
+          <td>${round.round}</td>
+          <td>${p1ChoiceDisplay}</td>
+          <td>${p2ChoiceDisplay}</td>
+          <td>${stagAppearedDisplay}</td>
+          <td class="${p1ChangeClass}">${p1FoodChange}</td>
+          <td class="${p2ChangeClass}">${p2FoodChange}</td>
+          <td>${round.player1CurrentFood.toFixed(1)}</td>
+          <td>${round.player2CurrentFood.toFixed(1)}</td>
+        </tr>
+      `;
+    })
+    .join('');
 });
 
 // Find breakeven probability

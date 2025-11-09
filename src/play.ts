@@ -1,6 +1,29 @@
 import type { GameConfig, Choice } from './types';
 import { HumanGame } from './human-game';
 import { getPresetById } from './presets';
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register Chart.js components
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend
+);
 
 let game: HumanGame | null = null;
 
@@ -13,6 +36,7 @@ const setupScreen = document.getElementById('setup-screen') as HTMLDivElement;
 const gameScreen = document.getElementById('game-screen') as HTMLDivElement;
 const choiceScreen = document.getElementById('choice-screen') as HTMLDivElement;
 const transitionScreen = document.getElementById('transition-screen') as HTMLDivElement;
+const revealScreen = document.getElementById('reveal-screen') as HTMLDivElement;
 const outcomeScreen = document.getElementById('outcome-screen') as HTMLDivElement;
 const gameOverScreen = document.getElementById('game-over-screen') as HTMLDivElement;
 
@@ -27,13 +51,27 @@ const setupStartingFoodValue = document.getElementById(
 const setupStagProb = document.getElementById('setup-stag-prob') as HTMLInputElement;
 const setupStagProbValue = document.getElementById('setup-stag-prob-value') as HTMLSpanElement;
 
-const setupMaxRounds = document.getElementById('setup-max-rounds') as HTMLInputElement;
-const setupMaxRoundsValue = document.getElementById('setup-max-rounds-value') as HTMLSpanElement;
+const setupStagPayoff = document.getElementById('setup-stag-payoff') as HTMLInputElement;
+const setupStagPayoffValue = document.getElementById('setup-stag-payoff-value') as HTMLSpanElement;
 
 const setupDailyCons = document.getElementById('setup-daily-cons') as HTMLInputElement;
 const setupDailyConsValue = document.getElementById('setup-daily-cons-value') as HTMLSpanElement;
 
+const setupMaxRounds = document.getElementById('setup-max-rounds') as HTMLInputElement;
+const setupMaxRoundsValue = document.getElementById('setup-max-rounds-value') as HTMLSpanElement;
+
 const startGameButton = document.getElementById('start-game') as HTMLButtonElement;
+
+// Advanced settings toggle
+const toggleAdvancedSettingsButton = document.getElementById('toggle-advanced-settings') as HTMLButtonElement;
+const advancedSettingsToggleIcon = document.getElementById('advanced-settings-toggle-icon') as HTMLSpanElement;
+const advancedSettingsContent = document.getElementById('advanced-settings-content') as HTMLDivElement;
+
+toggleAdvancedSettingsButton.addEventListener('click', () => {
+  const isHidden = advancedSettingsContent.style.display === 'none';
+  advancedSettingsContent.style.display = isHidden ? 'block' : 'none';
+  advancedSettingsToggleIcon.textContent = isHidden ? '▼' : '▶';
+});
 
 // Apply preset to sliders
 function applyPreset(presetId: string) {
@@ -42,6 +80,7 @@ function applyPreset(presetId: string) {
 
   setupStartingFood.value = preset.startingFood.toString();
   setupStagProb.value = (preset.stagProbability * 100).toString();
+  setupStagPayoff.value = preset.stagPayoff.toString();
   setupDailyCons.value = preset.dailyConsumption.toString();
 
   // Update description
@@ -50,6 +89,7 @@ function applyPreset(presetId: string) {
   // Update value displays
   setupStartingFoodValue.textContent = setupStartingFood.value;
   setupStagProbValue.textContent = setupStagProb.value + '%';
+  setupStagPayoffValue.textContent = setupStagPayoff.value;
   setupDailyConsValue.textContent = setupDailyCons.value;
 }
 
@@ -67,12 +107,16 @@ setupStagProb.addEventListener('input', () => {
   setupPresetSelect.value = 'custom';
   setupStagProbValue.textContent = setupStagProb.value + '%';
 });
-setupMaxRounds.addEventListener('input', () => {
-  setupMaxRoundsValue.textContent = setupMaxRounds.value;
+setupStagPayoff.addEventListener('input', () => {
+  setupPresetSelect.value = 'custom';
+  setupStagPayoffValue.textContent = setupStagPayoff.value;
 });
 setupDailyCons.addEventListener('input', () => {
   setupPresetSelect.value = 'custom';
   setupDailyConsValue.textContent = setupDailyCons.value;
+});
+setupMaxRounds.addEventListener('input', () => {
+  setupMaxRoundsValue.textContent = setupMaxRounds.value;
 });
 
 // Start game
@@ -80,6 +124,7 @@ startGameButton.addEventListener('click', () => {
   const config: GameConfig = {
     startingFood: parseInt(setupStartingFood.value),
     stagProbability: parseInt(setupStagProb.value) / 100,
+    stagPayoff: parseFloat(setupStagPayoff.value),
     maxRounds: parseInt(setupMaxRounds.value),
     dailyConsumption: parseFloat(setupDailyCons.value),
   };
@@ -99,6 +144,7 @@ startGameButton.addEventListener('click', () => {
 // Choice screen elements
 const currentPlayerName = document.getElementById('current-player-name') as HTMLSpanElement;
 const choiceCurrentFood = document.getElementById('choice-current-food') as HTMLSpanElement;
+const choiceDailyConsumptionContainer = document.getElementById('choice-daily-consumption-container') as HTMLDivElement;
 const choiceDailyConsumption = document.getElementById('choice-daily-consumption') as HTMLSpanElement;
 const stagDescLine1 = document.getElementById('stag-desc-line1') as HTMLSpanElement;
 const choiceStagButton = document.getElementById('choice-stag') as HTMLButtonElement;
@@ -116,22 +162,31 @@ function showChoiceScreen() {
   choiceCurrentFood.textContent = currentFood.toString();
   choiceDailyConsumption.textContent = state.config.dailyConsumption.toString();
 
+  // Hide daily consumption if it's 0
+  if (state.config.dailyConsumption === 0) {
+    choiceDailyConsumptionContainer.style.display = 'none';
+  } else {
+    choiceDailyConsumptionContainer.style.display = 'flex';
+  }
+
   // Update stag description with probability and expected value
   const stagProb = state.config.stagProbability;
-  const expectedValue = stagProb * 5;
+  const stagPayoff = state.config.stagPayoff;
+  const expectedValue = stagProb * stagPayoff;
 
   if (stagProb < 1) {
     const probPercent = (stagProb * 100).toFixed(0);
     const ev = expectedValue.toFixed(1);
-    stagDescLine1.textContent = `Both Stag: +5 each (${probPercent}% chance, EV: +${ev})`;
+    stagDescLine1.textContent = `Both Stag: +${stagPayoff} each (${probPercent}% chance, EV: +${ev})`;
   } else {
-    stagDescLine1.textContent = 'Both Stag: +5 each';
+    stagDescLine1.textContent = `Both Stag: +${stagPayoff} each`;
   }
 
   // Hide all screens except choice
   gameScreen.style.display = 'none';
   choiceScreen.style.display = 'block';
   transitionScreen.style.display = 'none';
+  revealScreen.style.display = 'none';
   outcomeScreen.style.display = 'none';
 }
 
@@ -148,8 +203,8 @@ function handleChoice(choice: Choice) {
     // Player 1 just chose, show transition to Player 2
     showTransition();
   } else {
-    // Player 2 just chose, show outcome
-    showOutcome();
+    // Player 2 just chose, show reveal screen
+    showReveal();
   }
 }
 
@@ -173,9 +228,23 @@ readyButton.addEventListener('click', () => {
   showChoiceScreen();
 });
 
+// Reveal screen
+const revealButton = document.getElementById('reveal-button') as HTMLButtonElement;
+
+function showReveal() {
+  choiceScreen.style.display = 'none';
+  revealScreen.style.display = 'block';
+}
+
+revealButton.addEventListener('click', () => {
+  showOutcome();
+});
+
 // Outcome screen
 const outcomeText = document.getElementById('outcome-text') as HTMLDivElement;
+const outcomeChartCanvas = document.getElementById('outcome-chart') as HTMLCanvasElement;
 const continueButton = document.getElementById('continue-button') as HTMLButtonElement;
+let outcomeChart: Chart | null = null;
 
 function showOutcome() {
   if (!game) return;
@@ -188,31 +257,151 @@ function showOutcome() {
   const player1Name = state.players[0].name;
   const player2Name = state.players[1].name;
 
-  let outcomeHTML = `<h2>Round ${lastRound.round} Results</h2>`;
-  outcomeHTML += `<p><strong>${player1Name}:</strong> ${lastRound.player1Choice === 'stag' ? 'Stag 🦌' : 'Hare 🐇'}</p>`;
-  outcomeHTML += `<p><strong>${player2Name}:</strong> ${lastRound.player2Choice === 'stag' ? 'Stag 🦌' : 'Hare 🐇'}</p>`;
+  // Calculate hunt payoffs before consumption
+  const stagPayoff = state.config.stagPayoff;
+  let player1HuntPayoff = 0;
+  let player2HuntPayoff = 0;
 
   if (lastRound.player1Choice === 'stag' && lastRound.player2Choice === 'stag') {
     if (lastRound.stagAppeared) {
-      outcomeHTML += `<p class="success">The stag appeared! Both players get +5 food.</p>`;
+      player1HuntPayoff = stagPayoff;
+      player2HuntPayoff = stagPayoff;
     } else {
-      outcomeHTML += `<p class="failure">The stag didn't appear! Both players get 0 food.</p>`;
+      player1HuntPayoff = 0;
+      player2HuntPayoff = 0;
+    }
+  } else if (lastRound.player1Choice === 'hare' && lastRound.player2Choice === 'hare') {
+    player1HuntPayoff = 2;
+    player2HuntPayoff = 2;
+  } else if (lastRound.player1Choice === 'stag' && lastRound.player2Choice === 'hare') {
+    player1HuntPayoff = 0;
+    player2HuntPayoff = 4;
+  } else {
+    player1HuntPayoff = 4;
+    player2HuntPayoff = 0;
+  }
+
+  let outcomeHTML = `<h2>Round ${lastRound.round} Results</h2>`;
+
+  outcomeHTML += `<div class="choices-row">`;
+  outcomeHTML += `<div class="choice-box player1"><strong>${player1Name}:</strong><br>${lastRound.player1Choice === 'stag' ? 'Stag 🦌' : 'Hare 🐇'}</div>`;
+  outcomeHTML += `<div class="choice-box player2"><strong>${player2Name}:</strong><br>${lastRound.player2Choice === 'stag' ? 'Stag 🦌' : 'Hare 🐇'}</div>`;
+  outcomeHTML += `</div>`;
+
+  if (lastRound.player1Choice === 'stag' && lastRound.player2Choice === 'stag') {
+    if (lastRound.stagAppeared) {
+      outcomeHTML += `<p class="success">✓ The stag appeared!</p>`;
+    } else {
+      outcomeHTML += `<p class="failure">✗ The stag didn't appear!</p>`;
     }
   }
 
-  outcomeHTML += `<div class="food-changes">`;
-  outcomeHTML += `<p><strong>${player1Name}:</strong> ${lastRound.player1FoodChange >= 0 ? '+' : ''}${lastRound.player1FoodChange} food → ${lastRound.player1CurrentFood} total</p>`;
-  outcomeHTML += `<p><strong>${player2Name}:</strong> ${lastRound.player2FoodChange >= 0 ? '+' : ''}${lastRound.player2FoodChange} food → ${lastRound.player2CurrentFood} total</p>`;
+  const player1StartingFood = lastRound.player1CurrentFood - lastRound.player1FoodChange;
+
+  outcomeHTML += `<div class="player-breakdown">`;
+  outcomeHTML += `<strong>${player1Name}:</strong>`;
+  outcomeHTML += `<div class="breakdown-calculation">`;
+  outcomeHTML += `<div class="calc-box"><span class="calc-value">${player1StartingFood}</span><span class="calc-label">Starting</span></div>`;
+  outcomeHTML += `<span class="calc-symbol">+</span>`;
+  outcomeHTML += `<div class="calc-box positive"><span class="calc-value">+${player1HuntPayoff}</span><span class="calc-label">Hunt</span></div>`;
+  if (state.config.dailyConsumption > 0) {
+    outcomeHTML += `<span class="calc-symbol">−</span>`;
+    outcomeHTML += `<div class="calc-box negative"><span class="calc-value">${state.config.dailyConsumption}</span><span class="calc-label">Consumption</span></div>`;
+  }
+  outcomeHTML += `<span class="calc-symbol">=</span>`;
+  outcomeHTML += `<div class="calc-box result ${lastRound.player1CurrentFood > player1StartingFood ? 'positive' : lastRound.player1CurrentFood < player1StartingFood ? 'negative' : ''}"><span class="calc-value">${lastRound.player1CurrentFood}</span><span class="calc-label">Result</span></div>`;
+  outcomeHTML += `</div>`;
+  outcomeHTML += `</div>`;
+
+  const player2StartingFood = lastRound.player2CurrentFood - lastRound.player2FoodChange;
+
+  outcomeHTML += `<div class="player-breakdown">`;
+  outcomeHTML += `<strong>${player2Name}:</strong>`;
+  outcomeHTML += `<div class="breakdown-calculation">`;
+  outcomeHTML += `<div class="calc-box"><span class="calc-value">${player2StartingFood}</span><span class="calc-label">Starting</span></div>`;
+  outcomeHTML += `<span class="calc-symbol">+</span>`;
+  outcomeHTML += `<div class="calc-box positive"><span class="calc-value">+${player2HuntPayoff}</span><span class="calc-label">Hunt</span></div>`;
+  if (state.config.dailyConsumption > 0) {
+    outcomeHTML += `<span class="calc-symbol">−</span>`;
+    outcomeHTML += `<div class="calc-box negative"><span class="calc-value">${state.config.dailyConsumption}</span><span class="calc-label">Consumption</span></div>`;
+  }
+  outcomeHTML += `<span class="calc-symbol">=</span>`;
+  outcomeHTML += `<div class="calc-box result ${lastRound.player2CurrentFood > player2StartingFood ? 'positive' : lastRound.player2CurrentFood < player2StartingFood ? 'negative' : ''}"><span class="calc-value">${lastRound.player2CurrentFood}</span><span class="calc-label">Result</span></div>`;
+  outcomeHTML += `</div>`;
   outcomeHTML += `</div>`;
 
   outcomeText.innerHTML = outcomeHTML;
 
+  // Create food over time chart
+  createOutcomeChart();
+
   choiceScreen.style.display = 'none';
   transitionScreen.style.display = 'none';
+  revealScreen.style.display = 'none';
   outcomeScreen.style.display = 'block';
 
-  // Update game metrics
+  // Update game metrics and history
   updateGameMetrics();
+  updateRoundHistory();
+}
+
+function createOutcomeChart() {
+  if (!game) return;
+
+  const state = game.getState();
+
+  // Destroy existing chart if it exists
+  if (outcomeChart) {
+    outcomeChart.destroy();
+  }
+
+  const labels = ['Start', ...state.history.map((r) => `R${r.round}`)];
+  const player1Data = [state.config.startingFood, ...state.history.map((r) => r.player1CurrentFood)];
+  const player2Data = [state.config.startingFood, ...state.history.map((r) => r.player2CurrentFood)];
+
+  const ctx = outcomeChartCanvas.getContext('2d');
+  if (!ctx) return;
+
+  outcomeChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: state.players[0].name,
+          data: player1Data,
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.1,
+        },
+        {
+          label: state.players[1].name,
+          data: player2Data,
+          borderColor: 'rgb(239, 68, 68)',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          tension: 0.1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Food',
+          },
+        },
+      },
+    },
+  });
 }
 
 continueButton.addEventListener('click', () => {
@@ -226,6 +415,48 @@ continueButton.addEventListener('click', () => {
     showChoiceScreen();
   }
 });
+
+// Round history toggle
+const toggleHistoryButton = document.getElementById('toggle-history') as HTMLButtonElement;
+const historyToggleIcon = document.getElementById('history-toggle-icon') as HTMLSpanElement;
+const roundHistoryContent = document.getElementById('round-history-content') as HTMLDivElement;
+const historyTableBody = document.getElementById('history-table-body') as HTMLTableSectionElement;
+
+toggleHistoryButton.addEventListener('click', () => {
+  const isHidden = roundHistoryContent.style.display === 'none';
+  roundHistoryContent.style.display = isHidden ? 'block' : 'none';
+  historyToggleIcon.classList.toggle('expanded', isHidden);
+});
+
+function updateRoundHistory() {
+  if (!game) return;
+
+  const state = game.getState();
+  const history = state.history;
+
+  historyTableBody.innerHTML = '';
+
+  history.forEach((round) => {
+    const row = document.createElement('tr');
+
+    const stagStatus = round.player1Choice === 'stag' && round.player2Choice === 'stag'
+      ? (round.stagAppeared ? '✓' : '✗')
+      : '-';
+
+    row.innerHTML = `
+      <td>${round.round}</td>
+      <td>${round.player1Choice === 'stag' ? '🦌' : '🐇'}</td>
+      <td>${round.player2Choice === 'stag' ? '🦌' : '🐇'}</td>
+      <td>${stagStatus}</td>
+      <td class="${round.player1FoodChange >= 0 ? 'food-gain' : 'food-loss'}">${round.player1FoodChange >= 0 ? '+' : ''}${round.player1FoodChange}</td>
+      <td class="${round.player2FoodChange >= 0 ? 'food-gain' : 'food-loss'}">${round.player2FoodChange >= 0 ? '+' : ''}${round.player2FoodChange}</td>
+      <td>${round.player1CurrentFood}</td>
+      <td>${round.player2CurrentFood}</td>
+    `;
+
+    historyTableBody.appendChild(row);
+  });
+}
 
 // Game metrics
 const metricsRound = document.getElementById('metrics-round') as HTMLSpanElement;
@@ -288,6 +519,7 @@ function showGameOver() {
   gameScreen.style.display = 'none';
   choiceScreen.style.display = 'none';
   transitionScreen.style.display = 'none';
+  revealScreen.style.display = 'none';
   outcomeScreen.style.display = 'none';
   gameOverScreen.style.display = 'block';
 }
@@ -298,8 +530,6 @@ playAgainButton.addEventListener('click', () => {
   setupScreen.style.display = 'block';
 });
 
-// Initialize
-setupStartingFoodValue.textContent = setupStartingFood.value;
-setupStagProbValue.textContent = setupStagProb.value + '%';
+// Initialize - apply the custom preset on load
+applyPreset('custom');
 setupMaxRoundsValue.textContent = setupMaxRounds.value;
-setupDailyConsValue.textContent = setupDailyCons.value;

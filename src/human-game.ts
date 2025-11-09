@@ -80,7 +80,8 @@ export class HumanGame {
     const { player1Payoff, player2Payoff } = calculatePayoff(
       player1Choice,
       player2Choice,
-      stagAppeared
+      stagAppeared,
+      this.state.config.stagPayoff
     );
 
     // Update food

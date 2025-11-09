@@ -32,7 +32,8 @@ export function createGameState(
 export function determineChoice(
   player: Player,
   opponentLastChoice: Choice | null,
-  currentFood: number
+  currentFood: number,
+  dailyConsumption: number
 ): Choice {
   switch (player.strategy) {
     case 'always-stag':
@@ -49,8 +50,8 @@ export function determineChoice(
       return Math.random() < 0.5 ? 'stag' : 'hare';
 
     case 'cautious':
-      // Hunt hare if food is below threshold (3), otherwise stag
-      return currentFood < 3 ? 'hare' : 'stag';
+      // Hunt hare if food is below daily consumption threshold, otherwise stag
+      return currentFood <= dailyConsumption ? 'hare' : 'stag';
 
     default:
       return 'hare';
@@ -60,12 +61,13 @@ export function determineChoice(
 export function calculatePayoff(
   player1Choice: Choice,
   player2Choice: Choice,
-  stagAppeared: boolean
+  stagAppeared: boolean,
+  stagPayoff: number
 ): { player1Payoff: number; player2Payoff: number } {
   // Both hunt stag
   if (player1Choice === 'stag' && player2Choice === 'stag') {
     if (stagAppeared) {
-      return { player1Payoff: 5, player2Payoff: 5 };
+      return { player1Payoff: stagPayoff, player2Payoff: stagPayoff };
     } else {
       return { player1Payoff: 0, player2Payoff: 0 };
     }
@@ -103,8 +105,8 @@ export function playRound(state: GameState): GameState {
   const player2LastOpponentChoice = lastRound?.player1Choice ?? null;
 
   // Determine choices
-  const player1Choice = determineChoice(player1, player2LastOpponentChoice, player1.currentFood);
-  const player2Choice = determineChoice(player2, player1LastOpponentChoice, player2.currentFood);
+  const player1Choice = determineChoice(player1, player2LastOpponentChoice, player1.currentFood, state.config.dailyConsumption);
+  const player2Choice = determineChoice(player2, player1LastOpponentChoice, player2.currentFood, state.config.dailyConsumption);
 
   // Determine if stag appears (only relevant if both hunt stag)
   const stagAppeared =
@@ -116,7 +118,8 @@ export function playRound(state: GameState): GameState {
   const { player1Payoff, player2Payoff } = calculatePayoff(
     player1Choice,
     player2Choice,
-    stagAppeared
+    stagAppeared,
+    state.config.stagPayoff
   );
 
   // Update food: add payoff, subtract daily consumption

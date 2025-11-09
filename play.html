@@ -12,11 +12,7 @@
       <div id="setup-screen" class="screen">
         <header>
           <h1>Stag Hunt Game</h1>
-          <p>Human vs Human - Pass the phone between players</p>
-          <nav>
-            <a href="/index.html">Simulation</a>
-            <a href="/play.html" class="active">Play (Human vs Human)</a>
-          </nav>
+          <p>Will you cooperate to hunt the stag, or play it safe with the hare? Test trust and strategy against another player as you navigate uncertainty and risk together. You can also explore different strategies in <a href="/index.html">simulation mode</a>.</p>
         </header>
 
         <section class="setup">
@@ -31,79 +27,97 @@
             <label for="player2-name">Player 2 Name</label>
             <input type="text" id="player2-name" placeholder="Player 2" />
           </div>
-
-          <h2>Game Settings</h2>
-
-          <div class="preset-group">
-            <label for="setup-preset-select">Preset Scenarios</label>
-            <select id="setup-preset-select" class="preset-select">
-              <option value="custom">Custom</option>
-              <option value="safe-world">Safe World</option>
-              <option value="harsh-world">Harsh World</option>
-              <option value="ea-dilemma">EA Dilemma</option>
-              <option value="high-stakes">High Stakes</option>
-              <option value="abundance">Abundance</option>
-              <option value="unreliable-stag">Unreliable Stag</option>
-              <option value="reliable-stag">Reliable Stag</option>
-              <option value="tight-margins">Tight Margins</option>
-            </select>
-            <p class="preset-description" id="setup-preset-description">Set your own parameters</p>
-          </div>
-
-          <div class="control-group">
-            <label for="setup-starting-food">Starting Food</label>
-            <input
-              type="range"
-              id="setup-starting-food"
-              min="0"
-              max="20"
-              value="5"
-              step="1"
-            />
-            <span id="setup-starting-food-value">5</span>
-          </div>
-
-          <div class="control-group">
-            <label for="setup-stag-prob">Stag Appearance Probability</label>
-            <input
-              type="range"
-              id="setup-stag-prob"
-              min="0"
-              max="100"
-              value="70"
-              step="5"
-            />
-            <span id="setup-stag-prob-value">70%</span>
-          </div>
-
-          <div class="control-group">
-            <label for="setup-max-rounds">Maximum Rounds</label>
-            <input
-              type="range"
-              id="setup-max-rounds"
-              min="1"
-              max="50"
-              value="20"
-              step="1"
-            />
-            <span id="setup-max-rounds-value">20</span>
-          </div>
-
-          <div class="control-group">
-            <label for="setup-daily-cons">Daily Food Consumption</label>
-            <input
-              type="range"
-              id="setup-daily-cons"
-              min="0"
-              max="5"
-              value="1"
-              step="0.5"
-            />
-            <span id="setup-daily-cons-value">1</span>
-          </div>
-
-          <button id="start-game" class="btn btn-primary btn-large">Start Game</button>
         </section>
+
+        <button id="toggle-advanced-settings" class="btn-toggle-settings">
+          <span id="advanced-settings-toggle-icon">▶</span> Advanced Settings
+        </button>
+
+        <section id="advanced-settings-content" class="setup" style="display: none;">
+            <div class="preset-group">
+              <label for="setup-preset-select">Preset Scenarios</label>
+              <select id="setup-preset-select" class="preset-select">
+                <option value="custom">Custom</option>
+                <option value="safe-world">Safe World</option>
+                <option value="harsh-world-high">Harsh World - High Resource</option>
+                <option value="harsh-world-low">Harsh World - Low Resource</option>
+                <option value="ea-dilemma">EA Dilemma</option>
+                <!-- <option value="high-stakes">High Stakes</option>
+                <option value="abundance">Abundance</option>
+                <option value="unreliable-stag">Unreliable Stag</option>
+                <option value="reliable-stag">Reliable Stag</option>
+                <option value="tight-margins">Tight Margins</option> -->
+              </select>
+              <p class="preset-description" id="setup-preset-description">Set your own parameters</p>
+            </div>
+
+            <div class="control-group">
+              <label for="setup-starting-food">Starting Food</label>
+              <input
+                type="range"
+                id="setup-starting-food"
+                min="0"
+                max="20"
+                value="5"
+                step="1"
+              />
+              <span id="setup-starting-food-value">5</span>
+            </div>
+
+            <div class="control-group">
+              <label for="setup-stag-prob">Stag Appearance Probability</label>
+              <input
+                type="range"
+                id="setup-stag-prob"
+                min="0"
+                max="100"
+                value="70"
+                step="5"
+              />
+              <span id="setup-stag-prob-value">70%</span>
+            </div>
+
+            <div class="control-group">
+              <label for="setup-stag-payoff">Stag Payoff (Successful Hunt)</label>
+              <input
+                type="range"
+                id="setup-stag-payoff"
+                min="1"
+                max="10"
+                value="5"
+                step="0.5"
+              />
+              <span id="setup-stag-payoff-value">5</span>
+            </div>
+
+            <div class="control-group">
+              <label for="setup-daily-cons">Daily Food Consumption</label>
+              <input
+                type="range"
+                id="setup-daily-cons"
+                min="0"
+                max="5"
+                value="1"
+                step="0.5"
+              />
+              <span id="setup-daily-cons-value">1</span>
+            </div>
+
+            <div class="control-group">
+              <label for="setup-max-rounds">Maximum Rounds</label>
+              <input
+                type="range"
+                id="setup-max-rounds"
+                min="1"
+                max="50"
+                value="20"
+                step="1"
+              />
+              <span id="setup-max-rounds-value">20</span>
+            </div>
+        </section>
+
+        <button id="start-game" class="btn btn-primary btn-large">Start Game</button>
       </div>
 
       <!-- Game Screen (Metrics Dashboard) -->
@@ -141,7 +155,7 @@
               <span class="info-label">Your Food:</span>
               <span class="info-value" id="choice-current-food">5</span>
             </div>
-            <div class="info-item">
+            <div class="info-item" id="choice-daily-consumption-container">
               <span class="info-label">Daily Consumption:</span>
               <span class="info-value" id="choice-daily-consumption">1</span>
             </div>
@@ -176,9 +190,44 @@
         </div>
       </div>
 
+      <!-- Reveal Screen -->
+      <div id="reveal-screen" class="screen fullscreen-transition" style="display: none">
+        <div class="transition-prompt">
+          <h2>Both choices are locked in!</h2>
+          <p>When both players are ready to see the results, press the button below</p>
+          <button id="reveal-button" class="btn btn-primary btn-large">Show Results</button>
+        </div>
+      </div>
+
       <!-- Outcome Screen -->
       <div id="outcome-screen" class="screen" style="display: none">
         <div id="outcome-text" class="outcome-content"></div>
+        <div class="outcome-chart-container">
+          <canvas id="outcome-chart"></canvas>
+        </div>
+        <div class="round-history-section">
+          <button id="toggle-history" class="btn-toggle-history">
+            <span id="history-toggle-icon">▶</span> Round History
+          </button>
+          <div id="round-history-content" class="round-history-content" style="display: none;">
+            <table id="history-table">
+              <thead>
+                <tr>
+                  <th>Round</th>
+                  <th>P1 Choice</th>
+                  <th>P2 Choice</th>
+                  <th>Stag?</th>
+                  <th>P1 Change</th>
+                  <th>P2 Change</th>
+                  <th>P1 Food</th>
+                  <th>P2 Food</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
         <button id="continue-button" class="btn btn-primary btn-large">
           Continue to Next Round
         </button>
