@@ -105,8 +105,8 @@ export function playRound(state: GameState): GameState {
   const player2LastOtherPlayerChoice = lastRound?.player1Choice ?? null;
 
   // Determine choices
-  const player1Choice = determineChoice(player1, player2LastOtherPlayerChoice, player1.currentFood, state.config.dailyConsumption);
-  const player2Choice = determineChoice(player2, player1LastOtherPlayerChoice, player2.currentFood, state.config.dailyConsumption);
+  const player1Choice = determineChoice(player1, player1LastOtherPlayerChoice, player1.currentFood, state.config.dailyConsumption);
+  const player2Choice = determineChoice(player2, player2LastOtherPlayerChoice, player2.currentFood, state.config.dailyConsumption);
 
   // Determine if stag appears (only relevant if both hunt stag)
   const stagAppeared =
