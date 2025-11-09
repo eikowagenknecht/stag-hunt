@@ -31,7 +31,7 @@ export function createGameState(
 
 export function determineChoice(
   player: Player,
-  opponentLastChoice: Choice | null,
+  otherPlayerLastChoice: Choice | null,
   currentFood: number,
   dailyConsumption: number
 ): Choice {
@@ -43,8 +43,8 @@ export function determineChoice(
       return 'hare';
 
     case 'tit-for-tat':
-      // Start with stag, then copy opponent's last move
-      return opponentLastChoice ?? 'stag';
+      // Start with stag, then copy other player's last move
+      return otherPlayerLastChoice ?? 'stag';
 
     case 'random':
       return Math.random() < 0.5 ? 'stag' : 'hare';
@@ -101,12 +101,12 @@ export function playRound(state: GameState): GameState {
 
   // Get last choices for tit-for-tat strategy
   const lastRound = state.history[state.history.length - 1];
-  const player1LastOpponentChoice = lastRound?.player2Choice ?? null;
-  const player2LastOpponentChoice = lastRound?.player1Choice ?? null;
+  const player1LastOtherPlayerChoice = lastRound?.player2Choice ?? null;
+  const player2LastOtherPlayerChoice = lastRound?.player1Choice ?? null;
 
   // Determine choices
-  const player1Choice = determineChoice(player1, player2LastOpponentChoice, player1.currentFood, state.config.dailyConsumption);
-  const player2Choice = determineChoice(player2, player1LastOpponentChoice, player2.currentFood, state.config.dailyConsumption);
+  const player1Choice = determineChoice(player1, player2LastOtherPlayerChoice, player1.currentFood, state.config.dailyConsumption);
+  const player2Choice = determineChoice(player2, player1LastOtherPlayerChoice, player2.currentFood, state.config.dailyConsumption);
 
   // Determine if stag appears (only relevant if both hunt stag)
   const stagAppeared =

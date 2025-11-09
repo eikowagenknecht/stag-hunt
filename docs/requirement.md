@@ -62,7 +62,7 @@ When a preset is selected, the sliders automatically update. Manual slider adjus
 Players can choose from the following strategies:
 - **Always Stag**: Always hunt stag (full cooperation)
 - **Always Hare**: Always hunt hare (defection)
-- **Tit-for-Tat**: Start with stag, then copy opponent's last move
+- **Tit-for-Tat**: Start with stag, then copy other player's last move
 - **Random**: 50/50 random choice each round
 - **Cautious**: Hunt hare if food < threshold, otherwise stag
 
