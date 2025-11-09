@@ -191,9 +191,23 @@ findBreakevenButton.addEventListener('click', () => {
   // Use setTimeout to allow UI to update
   setTimeout(() => {
     const breakeven = findBreakevenProbability(config, 0.01);
+    const currentProb = parseInt(stagProbSlider.value);
+    const comparison = currentProb >= breakeven * 100
+      ? `✓ Your current stag probability (${currentProb}%) is above this threshold, so cooperation is viable!`
+      : `⚠ Your current stag probability (${currentProb}%) is below this threshold. Players should hunt hare instead.`;
+
     breakevenResult.innerHTML = `
-      <strong>Breakeven Stag Probability:</strong> ${(breakeven * 100).toFixed(1)}%<br>
-      <small>At this probability, Always Stag and Always Hare have similar survival rates.</small>
+      <h4>Minimum Required Stag Probability: ${(breakeven * 100).toFixed(1)}%</h4>
+      <p>
+        This is the "tipping point" where hunting stag becomes worth the risk.
+        At this probability, both strategies (Always Stag vs Always Hare) survive about the same number of rounds.
+      </p>
+      <p><strong>${comparison}</strong></p>
+      <p style="font-size: 0.875rem; color: var(--color-text-light); margin-top: 0.5rem;">
+        <strong>How to use this:</strong><br>
+        • If stag probability ≥ ${(breakeven * 100).toFixed(1)}%: Cooperation is worth it<br>
+        • If stag probability &lt; ${(breakeven * 100).toFixed(1)}%: Play it safe with hare
+      </p>
     `;
   }, 100);
 });

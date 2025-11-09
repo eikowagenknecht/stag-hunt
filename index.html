@@ -179,24 +179,30 @@
 
           <div class="analysis-content">
             <div class="analysis-tool">
+              <h3>When is cooperation worth the risk?</h3>
               <button id="find-breakeven" class="btn btn-secondary">
-                Find Breakeven Probability
+                Find Minimum Stag Probability
               </button>
               <p class="tool-description">
-                Calculates the minimum stag appearance probability needed for cooperation to be viable.
-                Finds the threshold where "Always Stag" performs similarly to "Always Hare" in survival rounds.
+                <strong>What it does:</strong> Finds the lowest stag appearance probability where hunting stag (cooperation)
+                performs as well as hunting hare (playing it safe).<br><br>
+                <strong>Why it's useful:</strong> If the actual stag probability is below this threshold, players should
+                hunt hare. Above it, cooperation makes sense. This is the "tipping point" for when risk-taking pays off.
               </p>
             </div>
 
             <div id="breakeven-result" class="result-box" style="display: none"></div>
 
             <div class="analysis-tool">
+              <h3>Where does cooperation succeed or fail?</h3>
               <button id="generate-heatmap" class="btn btn-secondary">
-                Generate Heatmap
+                Generate Survival Map
               </button>
               <p class="tool-description">
-                Visualizes survival outcomes across different stag probability and consumption combinations.
-                Darker colors indicate longer survival. Identifies viable cooperation zones.
+                <strong>What it does:</strong> Tests every combination of stag probability and daily food consumption
+                to see how long both players survive when they cooperate (both hunt stag).<br><br>
+                <strong>Why it's useful:</strong> Shows you the "safe zones" where cooperation works well, and the
+                "danger zones" where it's too risky. Higher numbers (greener colors) = cooperation succeeds longer.
               </p>
             </div>
 

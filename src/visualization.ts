@@ -202,8 +202,22 @@ export function createHeatmapTable(containerId: string, heatmapData: HeatmapPoin
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
 
-  // Create table HTML
-  let html = '<table class="heatmap-table"><thead><tr><th>Consumption \\ Probability</th>';
+  // Create header with explanation
+  let html = `
+    <div style="margin-bottom: 1rem;">
+      <h4 style="margin-bottom: 0.5rem;">Cooperation Survival Map</h4>
+      <p style="font-size: 0.875rem; color: var(--color-text-light); margin-bottom: 0.5rem;">
+        Shows how many rounds both players survive when they both hunt stag.
+        Rows = daily food consumption. Columns = stag appearance probability.
+      </p>
+      <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; margin-bottom: 1rem;">
+        <strong>Color Guide:</strong>
+        <span style="padding: 0.25rem 0.75rem; background: rgb(255, 200, 200); border-radius: 0.25rem;">Few rounds</span>
+        <span style="padding: 0.25rem 0.75rem; background: rgb(255, 255, 200); border-radius: 0.25rem;">Some rounds</span>
+        <span style="padding: 0.25rem 0.75rem; background: rgb(200, 255, 200); border-radius: 0.25rem;">Many rounds</span>
+      </div>
+    </div>
+    <table class="heatmap-table"><thead><tr><th>Daily Food Cost ↓ / Stag Probability →</th>`;
 
   probabilities.forEach((prob) => {
     html += `<th>${(prob * 100).toFixed(0)}%</th>`;
@@ -212,7 +226,7 @@ export function createHeatmapTable(containerId: string, heatmapData: HeatmapPoin
   html += '</tr></thead><tbody>';
 
   consumptions.forEach((consumption) => {
-    html += `<tr><td>${consumption.toFixed(1)}</td>`;
+    html += `<tr><td><strong>${consumption.toFixed(1)}</strong></td>`;
 
     probabilities.forEach((prob) => {
       const point = heatmapData.find(
@@ -221,10 +235,24 @@ export function createHeatmapTable(containerId: string, heatmapData: HeatmapPoin
 
       if (point) {
         const normalized = (point.avgRoundsSurvived - minValue) / (maxValue - minValue);
-        const intensity = Math.floor(normalized * 255);
-        const bgColor = `rgb(${255 - intensity}, ${255 - intensity / 2}, 255)`;
+        // Use red->yellow->green gradient matching the guide
+        // Few rounds (0.0): rgb(255, 200, 200) - light red
+        // Medium (0.5): rgb(255, 255, 200) - light yellow
+        // Many rounds (1.0): rgb(200, 255, 200) - light green
+        let red, green;
+        if (normalized < 0.5) {
+          // First half: red stays 255, green goes 200->255
+          red = 255;
+          green = Math.floor(200 + normalized * 2 * 55);
+        } else {
+          // Second half: green stays 255, red goes 255->200
+          red = Math.floor(255 - (normalized - 0.5) * 2 * 55);
+          green = 255;
+        }
+        const blue = 200;
+        const bgColor = `rgb(${red}, ${green}, ${blue})`;
 
-        html += `<td style="background-color: ${bgColor};" title="Avg Rounds: ${point.avgRoundsSurvived}">${point.avgRoundsSurvived}</td>`;
+        html += `<td style="background-color: ${bgColor}; font-weight: 600;" title="Avg Rounds: ${point.avgRoundsSurvived}">${point.avgRoundsSurvived}</td>`;
       } else {
         html += '<td>-</td>';
       }
@@ -234,6 +262,16 @@ export function createHeatmapTable(containerId: string, heatmapData: HeatmapPoin
   });
 
   html += '</tbody></table>';
+
+  html += `
+    <div style="margin-top: 1rem; padding: 1rem; background: var(--color-bg); border-radius: 0.375rem; font-size: 0.875rem;">
+      <strong>How to read this:</strong><br>
+      • Green cells = Cooperation succeeds (both players survive many rounds)<br>
+      • Red cells = Cooperation fails (players starve quickly)<br>
+      • Look for green zones: These are parameter combinations where both hunting stag works well<br>
+      • Notice the pattern: Higher stag probability + lower food consumption = better cooperation outcomes
+    </div>
+  `;
 
   container.innerHTML = html;
 }

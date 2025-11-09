@@ -399,6 +399,22 @@ section {
   border-left: 4px solid var(--color-primary);
 }
 
+.result-box h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.result-box p {
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.result-box p:last-child {
+  margin-bottom: 0;
+}
+
 /* Charts */
 .charts {
   display: grid;
@@ -641,6 +657,13 @@ details[open] .summary-icon {
 
 .analysis-tool:first-child {
   margin-top: 1rem;
+}
+
+.analysis-tool h3 {
+  color: var(--color-secondary);
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
 }
 
 .tool-description {
