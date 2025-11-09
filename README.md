@@ -6,6 +6,7 @@ An interactive web-based simulation of the Stag Hunt game with uncertainty and s
 
 ## Features
 
+- **Preset Scenarios**: Built-in configurations (Safe World, Harsh World, EA Dilemma, etc.)
 - **Simulation Tool**: Test different strategies with configurable parameters
 - **Analysis Tools**: Breakeven finder and heatmap analysis
 - **Human vs Human Mode**: Play on one phone with private choices
@@ -43,7 +44,7 @@ pnpm run preview
 
 ## Game Mechanics
 
-- **Payoff Matrix**: Stag (5/5 if appears), Hare (2/2 safe), or Mixed (0/4)
+- **Payoff Matrix**: Stag (configurable, 5-15 if appears), Hare (2/2 safe), or Mixed (0/4)
 - **Uncertainty**: Stag only appears with configurable probability
 - **Starvation**: Players consume food daily; game ends if anyone reaches 0 food
 - **Strategy vs Survival**: Classic cooperation dilemma with added risk
@@ -51,6 +52,7 @@ pnpm run preview
 ## Project Structure
 
 - `src/types.ts` - TypeScript type definitions
+- `src/presets.ts` - Game preset configurations
 - `src/game-logic.ts` - Core game rules
 - `src/simulation.ts` - Strategy simulation engine
 - `src/analysis.ts` - Breakeven and heatmap tools
