@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stag Hunt Simulation</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Stag Hunt Game Simulation</h1>
+        <p>
+          Explore cooperation under uncertainty and starvation pressure. Adjust parameters and
+          test different strategies.
+        </p>
+        <nav>
+          <a href="/index.html" class="active">Simulation</a>
+          <a href="/play.html">Play (Human vs Human)</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="controls">
+          <h2>Game Parameters</h2>
+
+          <div class="preset-group">
+            <label for="preset-select">Preset Scenarios</label>
+            <select id="preset-select" class="preset-select">
+              <option value="custom">Custom</option>
+              <option value="safe-world">Safe World</option>
+              <option value="harsh-world">Harsh World</option>
+              <option value="ea-dilemma">EA Dilemma</option>
+              <option value="high-stakes">High Stakes</option>
+              <option value="abundance">Abundance</option>
+              <option value="unreliable-stag">Unreliable Stag</option>
+              <option value="reliable-stag">Reliable Stag</option>
+              <option value="tight-margins">Tight Margins</option>
+            </select>
+            <p class="preset-description" id="preset-description">Set your own parameters</p>
+          </div>
+
+          <div class="control-group">
+            <label for="starting-food">Starting Food</label>
+            <input
+              type="range"
+              id="starting-food"
+              min="0"
+              max="20"
+              value="5"
+              step="1"
+            />
+            <span id="starting-food-value">5</span>
+          </div>
+
+          <div class="control-group">
+            <label for="stag-prob">Stag Appearance Probability</label>
+            <input
+              type="range"
+              id="stag-prob"
+              min="0"
+              max="100"
+              value="70"
+              step="5"
+            />
+            <span id="stag-prob-value">70%</span>
+          </div>
+
+          <div class="control-group">
+            <label for="max-rounds">Maximum Rounds</label>
+            <input
+              type="range"
+              id="max-rounds"
+              min="1"
+              max="50"
+              value="20"
+              step="1"
+            />
+            <span id="max-rounds-value">20</span>
+          </div>
+
+          <div class="control-group">
+            <label for="daily-cons">Daily Food Consumption</label>
+            <input
+              type="range"
+              id="daily-cons"
+              min="0"
+              max="5"
+              value="1"
+              step="0.5"
+            />
+            <span id="daily-cons-value">1</span>
+          </div>
+        </section>
+
+        <section class="strategies">
+          <h2>Strategies</h2>
+
+          <div class="strategy-select">
+            <label for="player1-strategy">Player 1 Strategy</label>
+            <select id="player1-strategy">
+              <option value="always-stag">Always Stag (Full Cooperation)</option>
+              <option value="always-hare">Always Hare (Defection)</option>
+              <option value="tit-for-tat">Tit-for-Tat</option>
+              <option value="random">Random</option>
+              <option value="cautious">Cautious (Hare when low food)</option>
+            </select>
+          </div>
+
+          <div class="strategy-select">
+            <label for="player2-strategy">Player 2 Strategy</label>
+            <select id="player2-strategy">
+              <option value="always-stag">Always Stag (Full Cooperation)</option>
+              <option value="always-hare" selected>Always Hare (Defection)</option>
+              <option value="tit-for-tat">Tit-for-Tat</option>
+              <option value="random">Random</option>
+              <option value="cautious">Cautious (Hare when low food)</option>
+            </select>
+          </div>
+
+          <button id="run-simulation" class="btn btn-primary">Run Simulation</button>
+        </section>
+
+        <section class="analysis">
+          <h2>Analysis Tools</h2>
+
+          <button id="find-breakeven" class="btn btn-secondary">
+            Find Breakeven Probability
+          </button>
+
+          <div id="breakeven-result" class="result-box" style="display: none"></div>
+
+          <button id="generate-heatmap" class="btn btn-secondary">
+            Generate Heatmap
+          </button>
+
+          <div id="heatmap-container" class="heatmap-container"></div>
+        </section>
+
+        <section id="results-section" class="results" style="display: none">
+          <h2>Simulation Results</h2>
+
+          <div class="charts">
+            <div class="chart-container">
+              <canvas id="food-chart"></canvas>
+            </div>
+
+            <div class="chart-container">
+              <canvas id="choice-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="stats">
+            <h3>Statistics</h3>
+            <table id="stats-table"></table>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          Created for EA group presentations. Learn more about game theory and cooperation
+          under uncertainty.
+        </p>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

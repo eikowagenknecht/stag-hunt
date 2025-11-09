@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stag Hunt - Play</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="play-mode">
+    <div class="container">
+      <!-- Setup Screen -->
+      <div id="setup-screen" class="screen">
+        <header>
+          <h1>Stag Hunt Game</h1>
+          <p>Human vs Human - Pass the phone between players</p>
+          <nav>
+            <a href="/index.html">Simulation</a>
+            <a href="/play.html" class="active">Play (Human vs Human)</a>
+          </nav>
+        </header>
+
+        <section class="setup">
+          <h2>Player Names</h2>
+
+          <div class="input-group">
+            <label for="player1-name">Player 1 Name</label>
+            <input type="text" id="player1-name" placeholder="Player 1" />
+          </div>
+
+          <div class="input-group">
+            <label for="player2-name">Player 2 Name</label>
+            <input type="text" id="player2-name" placeholder="Player 2" />
+          </div>
+
+          <h2>Game Settings</h2>
+
+          <div class="preset-group">
+            <label for="setup-preset-select">Preset Scenarios</label>
+            <select id="setup-preset-select" class="preset-select">
+              <option value="custom">Custom</option>
+              <option value="safe-world">Safe World</option>
+              <option value="harsh-world">Harsh World</option>
+              <option value="ea-dilemma">EA Dilemma</option>
+              <option value="high-stakes">High Stakes</option>
+              <option value="abundance">Abundance</option>
+              <option value="unreliable-stag">Unreliable Stag</option>
+              <option value="reliable-stag">Reliable Stag</option>
+              <option value="tight-margins">Tight Margins</option>
+            </select>
+            <p class="preset-description" id="setup-preset-description">Set your own parameters</p>
+          </div>
+
+          <div class="control-group">
+            <label for="setup-starting-food">Starting Food</label>
+            <input
+              type="range"
+              id="setup-starting-food"
+              min="0"
+              max="20"
+              value="5"
+              step="1"
+            />
+            <span id="setup-starting-food-value">5</span>
+          </div>
+
+          <div class="control-group">
+            <label for="setup-stag-prob">Stag Appearance Probability</label>
+            <input
+              type="range"
+              id="setup-stag-prob"
+              min="0"
+              max="100"
+              value="70"
+              step="5"
+            />
+            <span id="setup-stag-prob-value">70%</span>
+          </div>
+
+          <div class="control-group">
+            <label for="setup-max-rounds">Maximum Rounds</label>
+            <input
+              type="range"
+              id="setup-max-rounds"
+              min="1"
+              max="50"
+              value="20"
+              step="1"
+            />
+            <span id="setup-max-rounds-value">20</span>
+          </div>
+
+          <div class="control-group">
+            <label for="setup-daily-cons">Daily Food Consumption</label>
+            <input
+              type="range"
+              id="setup-daily-cons"
+              min="0"
+              max="5"
+              value="1"
+              step="0.5"
+            />
+            <span id="setup-daily-cons-value">1</span>
+          </div>
+
+          <button id="start-game" class="btn btn-primary btn-large">Start Game</button>
+        </section>
+      </div>
+
+      <!-- Game Screen (Metrics Dashboard) -->
+      <div id="game-screen" class="screen" style="display: none">
+        <div class="metrics-dashboard">
+          <h2>Round <span id="metrics-round">0</span></h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card player1">
+              <h3>Player 1</h3>
+              <div class="food-amount">
+                <span id="metrics-player1-food">5</span> food
+              </div>
+            </div>
+
+            <div class="metric-card player2">
+              <h3>Player 2</h3>
+              <div class="food-amount">
+                <span id="metrics-player2-food">5</span> food
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Choice Screen -->
+      <div id="choice-screen" class="screen fullscreen-choice" style="display: none">
+        <div class="choice-prompt">
+          <h2><span id="current-player-name">Player</span>, make your choice</h2>
+          <p class="privacy-notice">Your choice will be hidden from the other player</p>
+
+          <div class="choice-buttons">
+            <button id="choice-stag" class="btn btn-choice btn-stag">
+              <span class="icon">🦌</span>
+              <span class="label">Hunt Stag</span>
+              <span class="desc">High reward if both hunt stag</span>
+            </button>
+
+            <button id="choice-hare" class="btn btn-choice btn-hare">
+              <span class="icon">🐇</span>
+              <span class="label">Hunt Hare</span>
+              <span class="desc">Safe, guaranteed reward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transition Screen -->
+      <div id="transition-screen" class="screen fullscreen-transition" style="display: none">
+        <div class="transition-prompt">
+          <h2>Pass phone to <span id="transition-player-name">Player 2</span></h2>
+          <p>When ready, they should press the button below</p>
+          <button id="ready-button" class="btn btn-primary btn-large">I'm Ready</button>
+        </div>
+      </div>
+
+      <!-- Outcome Screen -->
+      <div id="outcome-screen" class="screen" style="display: none">
+        <div id="outcome-text" class="outcome-content"></div>
+        <button id="continue-button" class="btn btn-primary btn-large">
+          Continue to Next Round
+        </button>
+      </div>
+
+      <!-- Game Over Screen -->
+      <div id="game-over-screen" class="screen" style="display: none">
+        <div id="game-over-text" class="game-over-content"></div>
+        <button id="play-again-button" class="btn btn-primary btn-large">
+          Play Again
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/play.ts"></script>
+  </body>
+</html>
