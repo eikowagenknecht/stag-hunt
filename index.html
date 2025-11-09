@@ -58,6 +58,7 @@
                 <input type="range" id="stag-payoff" min="1" max="20" value="5" step="0.5" />
                 <span id="stag-payoff-value">5</span>
               </div>
+              <div class="helper-text" id="stag-ev">Expected gain: 3.5</div>
             </div>
 
             <div class="control-group-compact">
@@ -75,10 +76,6 @@
                 <span id="max-rounds-value">20</span>
               </div>
             </div>
-          </div>
-
-          <div class="expected-value-display">
-            <span class="expected-value" id="stag-ev">Expected food gain: 3.5</span>
           </div>
 
           <div class="strategies-compact">
@@ -112,19 +109,19 @@
             </summary>
             <div class="strategy-list">
               <div class="strategy-item">
-                <strong>Always Stag:</strong> Always attempts to hunt the stag. Maximizes cooperation but risky if the other player hunts hare or if the stag doesn't appear.
+                <strong>Always Stag:</strong> Always hunts stag.
               </div>
               <div class="strategy-item">
-                <strong>Always Hare:</strong> Always hunts hare for guaranteed food. Safe and reliable (2 food when both hunt hare, 4 food when other player hunts stag), but misses out on higher stag payoffs.
+                <strong>Always Hare:</strong> Always hunts hare.
               </div>
               <div class="strategy-item">
-                <strong>Tit-for-Tat:</strong> Starts by hunting stag, then mirrors the other player's previous choice. Encourages cooperation while punishing defection.
+                <strong>Tit-for-Tat:</strong> Starts by hunting stag, then mirrors the other player's previous choice.
               </div>
               <div class="strategy-item">
-                <strong>Random:</strong> Randomly chooses stag or hare with 50% probability each round. Unpredictable and generally suboptimal.
+                <strong>Random:</strong> Randomly chooses stag or hare with 50% probability each round.
               </div>
               <div class="strategy-item">
-                <strong>Cautious:</strong> Adapts based on food reserves. Hunts hare when food is below the daily consumption threshold (playing it safe), otherwise hunts stag. Balances risk and reward.
+                <strong>Cautious:</strong> Hunts hare when food is below the daily consumption threshold, otherwise hunts stag.
               </div>
             </div>
           </details>
@@ -207,13 +204,6 @@
           </div>
         </details>
       </main>
-
-      <footer>
-        <p>
-          Created for EA group presentations. Learn more about game theory and cooperation
-          under uncertainty.
-        </p>
-      </footer>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
