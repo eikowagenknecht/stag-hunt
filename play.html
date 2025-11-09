@@ -113,14 +113,14 @@
 
           <div class="metrics-grid">
             <div class="metric-card player1">
-              <h3>Player 1</h3>
+              <div class="player-name" id="metrics-player1-name">Player 1</div>
               <div class="food-amount">
                 <span id="metrics-player1-food">5</span> food
               </div>
             </div>
 
             <div class="metric-card player2">
-              <h3>Player 2</h3>
+              <div class="player-name" id="metrics-player2-name">Player 2</div>
               <div class="food-amount">
                 <span id="metrics-player2-food">5</span> food
               </div>
@@ -132,20 +132,36 @@
       <!-- Choice Screen -->
       <div id="choice-screen" class="screen fullscreen-choice" style="display: none">
         <div class="choice-prompt">
-          <h2><span id="current-player-name">Player</span>, make your choice</h2>
-          <p class="privacy-notice">Your choice will be hidden from the other player</p>
+          <div class="current-player-banner">
+            <span id="current-player-name">Player</span>
+          </div>
+
+          <div class="game-state-info">
+            <div class="info-item">
+              <span class="info-label">Your Food:</span>
+              <span class="info-value" id="choice-current-food">5</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Daily Consumption:</span>
+              <span class="info-value" id="choice-daily-consumption">1</span>
+            </div>
+          </div>
+
+          <p class="privacy-notice">Make your choice - it will be hidden from the other player</p>
 
           <div class="choice-buttons">
             <button id="choice-stag" class="btn btn-choice btn-stag">
               <span class="icon">🦌</span>
               <span class="label">Hunt Stag</span>
-              <span class="desc">High reward if both hunt stag</span>
+              <span class="desc" id="stag-desc-line1">Both Stag: +5 each (70% chance, EV: +3.5)</span>
+              <span class="desc" id="stag-desc-line2">You Stag, They Hare: 0</span>
             </button>
 
             <button id="choice-hare" class="btn btn-choice btn-hare">
               <span class="icon">🐇</span>
               <span class="label">Hunt Hare</span>
-              <span class="desc">Safe, guaranteed reward</span>
+              <span class="desc">Both Hare: +2 each</span>
+              <span class="desc">You Hare, They Stag: +4</span>
             </button>
           </div>
         </div>

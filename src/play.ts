@@ -92,11 +92,15 @@ startGameButton.addEventListener('click', () => {
   setupScreen.style.display = 'none';
   gameScreen.style.display = 'block';
 
+  updateGameMetrics();
   showChoiceScreen();
 });
 
 // Choice screen elements
 const currentPlayerName = document.getElementById('current-player-name') as HTMLSpanElement;
+const choiceCurrentFood = document.getElementById('choice-current-food') as HTMLSpanElement;
+const choiceDailyConsumption = document.getElementById('choice-daily-consumption') as HTMLSpanElement;
+const stagDescLine1 = document.getElementById('stag-desc-line1') as HTMLSpanElement;
 const choiceStagButton = document.getElementById('choice-stag') as HTMLButtonElement;
 const choiceHareButton = document.getElementById('choice-hare') as HTMLButtonElement;
 
@@ -106,8 +110,23 @@ function showChoiceScreen() {
   const playerTurn = game.getCurrentPlayerTurn();
   const state = game.getState();
   const playerName = state.players[playerTurn - 1].name;
+  const currentFood = state.players[playerTurn - 1].currentFood;
 
   currentPlayerName.textContent = playerName;
+  choiceCurrentFood.textContent = currentFood.toString();
+  choiceDailyConsumption.textContent = state.config.dailyConsumption.toString();
+
+  // Update stag description with probability and expected value
+  const stagProb = state.config.stagProbability;
+  const expectedValue = stagProb * 5;
+
+  if (stagProb < 1) {
+    const probPercent = (stagProb * 100).toFixed(0);
+    const ev = expectedValue.toFixed(1);
+    stagDescLine1.textContent = `Both Stag: +5 each (${probPercent}% chance, EV: +${ev})`;
+  } else {
+    stagDescLine1.textContent = 'Both Stag: +5 each';
+  }
 
   // Hide all screens except choice
   gameScreen.style.display = 'none';
@@ -210,6 +229,8 @@ continueButton.addEventListener('click', () => {
 
 // Game metrics
 const metricsRound = document.getElementById('metrics-round') as HTMLSpanElement;
+const metricsPlayer1Name = document.getElementById('metrics-player1-name') as HTMLDivElement;
+const metricsPlayer2Name = document.getElementById('metrics-player2-name') as HTMLDivElement;
 const metricsPlayer1Food = document.getElementById('metrics-player1-food') as HTMLSpanElement;
 const metricsPlayer2Food = document.getElementById('metrics-player2-food') as HTMLSpanElement;
 
@@ -218,6 +239,8 @@ function updateGameMetrics() {
 
   const state = game.getState();
   metricsRound.textContent = state.currentRound.toString();
+  metricsPlayer1Name.textContent = state.players[0].name;
+  metricsPlayer2Name.textContent = state.players[1].name;
   metricsPlayer1Food.textContent = state.players[0].currentFood.toString();
   metricsPlayer2Food.textContent = state.players[1].currentFood.toString();
 }
